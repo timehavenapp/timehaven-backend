@@ -35,9 +35,20 @@ app.get('/health', (req, res) => {
 // Test database connection
 app.get('/test-db', async (req, res) => {
     try {
-        const { getDatabase } = require('./utils/database');
-        const db = getDatabase();
-        res.json({ status: 'ok', message: 'Database connection successful!' });
+        // Test by trying to create a test user
+        const testUserData = {
+            id: 'test-' + Date.now(),
+            name: 'Test User',
+            email: 'test@example.com',
+            timezone: 'America/New_York'
+        };
+        
+        const result = await createUser(testUserData);
+        res.json({ 
+            status: 'ok', 
+            message: 'Database connection and operations successful!',
+            testResult: result
+        });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });
     }
