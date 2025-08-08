@@ -27,6 +27,22 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'TimeHaven backend is running!' });
+});
+
+// Test database connection
+app.get('/test-db', async (req, res) => {
+    try {
+        const { getDatabase } = require('./utils/database');
+        const db = getDatabase();
+        res.json({ status: 'ok', message: 'Database connection successful!' });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+});
+
 // Basic test route
 app.get('/test', (req, res) => {
   res.json({ message: 'TimeHaven backend is running!' });
