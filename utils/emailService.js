@@ -32,7 +32,10 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
+            // Set the API key in the default headers
+            apiInstance.setApiKey('api-key', apiKey);
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending welcome email:', error);
@@ -72,7 +75,10 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
+            // Set the API key in the default headers
+            apiInstance.setApiKey('api-key', apiKey);
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending team invitation:', error);
@@ -112,7 +118,10 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
+            // Set the API key in the default headers
+            apiInstance.setApiKey('api-key', apiKey);
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending password reset:', error);
@@ -146,7 +155,7 @@ const emailService = {
                             </div>
                             
                             <div style="background-color: #e8f4fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                <p style="margin: 0;"><strong> Submitted:</strong> ${new Date().toLocaleString()}</p>
+                                <p style="margin: 0;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
                                 <p style="margin: 5px 0 0 0;"><strong>🌐 Source:</strong> TimeHaven Contact Form</p>
                             </div>
                             
@@ -173,7 +182,10 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
+            // Set the API key in the default headers
+            apiInstance.setApiKey('api-key', apiKey);
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending contact form email:', error);
