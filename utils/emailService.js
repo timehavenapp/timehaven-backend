@@ -15,8 +15,14 @@ const emailConfig = {
 // Create reusable transporter object using SMTP transport
 let transporter;
 
+console.log(' Debug: Environment variables check:');
+console.log('BREVO_EMAIL:', process.env.BREVO_EMAIL);
+console.log('BREVO_API_KEY exists:', !!process.env.BREVO_API_KEY);
+console.log('SUPPORT_EMAIL:', process.env.SUPPORT_EMAIL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 try {
-  transporter = nodemailer.createTransporter(emailConfig);
+  transporter = nodemailer.createTransport(emailConfig); // FIXED: removed "er"
   console.log('✅ Email transporter created successfully');
   console.log(`📧 Using email: ${process.env.BREVO_EMAIL}`);
 } catch (error) {
@@ -87,7 +93,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
     subject: 'Welcome to TimeHaven! 🚢',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #005dab;">Welcome to TimeHaven! ��</h1>
+        <h1 style="color: #005dab;">Welcome to TimeHaven!</h1>
         <p>Hi ${userName},</p>
         <p>Welcome aboard! We're excited to have you join the TimeHaven community.</p>
         <p>TimeHaven helps you navigate timezone challenges and coordinate with teams across the globe.</p>
@@ -126,7 +132,7 @@ const sendTeamInvitation = async (inviteeEmail, inviterName, teamName, invitatio
     subject: `You're invited to join ${teamName} on TimeHaven! 🚢`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #005dab;">Team Invitation ��</h1>
+        <h1 style="color: #005dab;">Team Invitation</h1>
         <p>Hi there!</p>
         <p><strong>${inviterName}</strong> has invited you to join the team <strong>${teamName}</strong> on TimeHaven.</p>
         <p>TimeHaven helps teams coordinate across timezones and schedule meetings efficiently.</p>
@@ -143,10 +149,10 @@ const sendTeamInvitation = async (inviteeEmail, inviterName, teamName, invitatio
 
   try {
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Team invitation email sent successfully:', result.messageId);
+    console.log('✅ Welcome email sent successfully:', result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('❌ Error sending team invitation email:', error);
+    console.error('❌ Error sending welcome email:', error);
     throw error;
   }
 };
