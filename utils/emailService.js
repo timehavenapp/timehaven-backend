@@ -5,11 +5,10 @@ const emailService = {
     // Send welcome email
     async sendWelcomeEmail(userEmail, userName) {
         try {
-            // Create API client with configuration
-            const apiClient = new SibApiV3Sdk.ApiClient();
-            apiClient.setApiKey('api-key', process.env.BREVO_API_KEY);
+            // Configure the default API key
+            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
             
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi(apiClient);
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = "Welcome to TimeHaven!";
@@ -39,11 +38,10 @@ const emailService = {
     // Send team invitation email
     async sendTeamInvitation(inviterName, inviteeEmail, teamName, invitationLink) {
         try {
-            // Create API client with configuration
-            const apiClient = new SibApiV3Sdk.ApiClient();
-            apiClient.setApiKey('api-key', process.env.BREVO_API_KEY);
+            // Configure the default API key
+            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
             
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi(apiClient);
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = `You're invited to join ${teamName} on TimeHaven!`;
@@ -78,11 +76,10 @@ const emailService = {
     // Send password reset email
     async sendPasswordReset(userEmail, resetLink) {
         try {
-            // Create API client with configuration
-            const apiClient = new SibApiV3Sdk.ApiClient();
-            apiClient.setApiKey('api-key', process.env.BREVO_API_KEY);
+            // Configure the default API key
+            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
             
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi(apiClient);
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = "Reset Your TimeHaven Password";
@@ -117,11 +114,10 @@ const emailService = {
     // Send contact form email
     async sendContactForm(name, email, subject, message) {
         try {
-            // Create API client with configuration
-            const apiClient = new SibApiV3Sdk.ApiClient();
-            apiClient.setApiKey('api-key', process.env.BREVO_API_KEY);
+            // Configure the default API key
+            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
             
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi(apiClient);
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = `New Contact Form: ${subject}`;
