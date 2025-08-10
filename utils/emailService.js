@@ -1,65 +1,48 @@
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 require('dotenv').config();
 
-// Email service configuration using environment variables
-const emailConfig = {
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.BREVO_EMAIL,
-    pass: process.env.BREVO_API_KEY
-  }
-};
-
-// Create reusable transporter object using SMTP transport
-let transporter;
+// Brevo API configuration
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 console.log(' Debug: Environment variables check:');
-console.log('BREVO_EMAIL:', process.env.BREVO_EMAIL);
-console.log('BREVO_API_KEY exists:', !!process.env.BREVO_API_KEY);
+console.log('BREVO_API_KEY exists:', !!BREVO_API_KEY);
 console.log('SUPPORT_EMAIL:', process.env.SUPPORT_EMAIL);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
-try {
-  transporter = nodemailer.createTransport(emailConfig); // FIXED: removed "er"
-  console.log('✅ Email transporter created successfully');
-  console.log(`📧 Using email: ${process.env.BREVO_EMAIL}`);
-} catch (error) {
-  console.error('❌ Error creating email transporter:', error);
-  transporter = null;
-}
-
-// Test email connection
+// Test API connection
 const testConnection = async () => {
-  if (!transporter) {
-    console.error('❌ No transporter available');
-    return false;
-  }
-  
   try {
-    await transporter.verify();
-    console.log('✅ Email server connection verified');
+    const response = await axios.get('https://api.brevo.com/v3/account', {
+      headers: {
+        'api-key': BREVO_API_KEY
+      }
+    });
+    console.log('✅ Brevo API connection verified');
     return true;
   } catch (error) {
-    console.error('❌ Email connection test failed:', error);
+    console.error('❌ Brevo API connection failed:', error.response?.data || error.message);
     return false;
   }
 };
 
 // Send contact form email
 const sendContactForm = async (formData) => {
-  if (!transporter) {
-    throw new Error('Email transporter not initialized');
-  }
-
   const { name, email, subject, message } = formData;
 
-  const mailOptions = {
-    from: process.env.BREVO_EMAIL,
-    to: process.env.SUPPORT_EMAIL,
+  const emailData = {
+    sender: {
+      name: 'TimeHaven Support',
+      email: 'support@timehaven.app'
+    },
+    to: [
+      {
+        email: process.env.SUPPORT_EMAIL,
+        name: 'TimeHaven Support'
+      }
+    ],
     subject: `Contact Form: ${subject}`,
-    html: `
+    htmlContent: `
       <h2>New Contact Form Submission</h2>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
@@ -72,26 +55,36 @@ const sendContactForm = async (formData) => {
   };
 
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Contact form email sent successfully:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    const response = await axios.post(BREVO_API_URL, emailData, {
+      headers: {
+        'api-key': BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('✅ Contact form email sent successfully:', response.data.messageId);
+    return { success: true, messageId: response.data.messageId };
   } catch (error) {
-    console.error('❌ Error sending contact form email:', error);
+    console.error('❌ Error sending contact form email:', error.response?.data || error.message);
     throw error;
   }
 };
 
 // Send welcome email
 const sendWelcomeEmail = async (userEmail, userName) => {
-  if (!transporter) {
-    throw new Error('Email transporter not initialized');
-  }
-
-  const mailOptions = {
-    from: process.env.BREVO_EMAIL,
-    to: userEmail,
-    subject: 'Welcome to TimeHaven! 🚢',
-    html: `
+  const emailData = {
+    sender: {
+      name: 'TimeHaven',
+      email: 'support@timehaven.app'
+    },
+    to: [
+      {
+        email: userEmail,
+        name: userName
+      }
+    ],
+    subject: 'Welcome to TimeHaven! ��',
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #005dab;">Welcome to TimeHaven!</h1>
         <p>Hi ${userName},</p>
@@ -111,26 +104,36 @@ const sendWelcomeEmail = async (userEmail, userName) => {
   };
 
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Welcome email sent successfully:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    const response = await axios.post(BREVO_API_URL, emailData, {
+      headers: {
+        'api-key': BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('✅ Welcome email sent successfully:', response.data.messageId);
+    return { success: true, messageId: response.data.messageId };
   } catch (error) {
-    console.error('❌ Error sending welcome email:', error);
+    console.error('❌ Error sending welcome email:', error.response?.data || error.message);
     throw error;
   }
 };
 
 // Send team invitation email
 const sendTeamInvitation = async (inviteeEmail, inviterName, teamName, invitationLink) => {
-  if (!transporter) {
-    throw new Error('Email transporter not initialized');
-  }
-
-  const mailOptions = {
-    from: process.env.BREVO_EMAIL,
-    to: inviteeEmail,
-    subject: `You're invited to join ${teamName} on TimeHaven! 🚢`,
-    html: `
+  const emailData = {
+    sender: {
+      name: 'TimeHaven',
+      email: 'support@timehaven.app'
+    },
+    to: [
+      {
+        email: inviteeEmail,
+        name: 'Team Member'
+      }
+    ],
+    subject: `You're invited to join ${teamName} on TimeHaven! ��`,
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #005dab;">Team Invitation</h1>
         <p>Hi there!</p>
@@ -148,11 +151,17 @@ const sendTeamInvitation = async (inviteeEmail, inviterName, teamName, invitatio
   };
 
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Welcome email sent successfully:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    const response = await axios.post(BREVO_API_URL, emailData, {
+      headers: {
+        'api-key': BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('✅ Team invitation email sent successfully:', response.data.messageId);
+    return { success: true, messageId: response.data.messageId };
   } catch (error) {
-    console.error('❌ Error sending welcome email:', error);
+    console.error('❌ Error sending team invitation email:', error.response?.data || error.message);
     throw error;
   }
 };
