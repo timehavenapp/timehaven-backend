@@ -116,8 +116,14 @@ app.post('/test-email', async (req, res) => {
 
 // Contact form endpoint - FIXED: Now accepts formData object
 app.post('/api/contact', async (req, res) => {
+    console.log(' Debug: Contact form endpoint hit');
+    console.log(' Debug: Request body:', req.body);
+    console.log(' Debug: Email service loaded:', !!emailService);
+    
     try {
         const { name, email, subject, message } = req.body;
+        
+        console.log(' Debug: Extracted data:', { name, email, subject, message });
         
         // Validate required fields
         if (!name || !email || !subject || !message) {
@@ -136,8 +142,12 @@ app.post('/api/contact', async (req, res) => {
             });
         }
         
+        console.log(' Debug: About to call emailService.sendContactForm');
+        
         // Send contact form email - FIXED: Pass formData object
         const result = await emailService.sendContactForm({ name, email, subject, message });
+        
+        console.log(' Debug: Email service result:', result);
         
         if (result.success) {
             res.json({ 
@@ -153,7 +163,8 @@ app.post('/api/contact', async (req, res) => {
         }
         
     } catch (error) {
-        console.error('Error processing contact form:', error);
+        console.error('❌ Error processing contact form:', error);
+        console.error('❌ Error stack:', error.stack);
         res.status(500).json({ 
             success: false, 
             error: 'Internal server error. Please try again later.' 
