@@ -5,9 +5,6 @@ const emailService = {
     // Send welcome email
     async sendWelcomeEmail(userEmail, userName) {
         try {
-            // Create a new API instance for each request
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = "Welcome to TimeHaven!";
@@ -32,10 +29,9 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            // Set the API key in the default headers
-            apiInstance.setApiKey('api-key', apiKey);
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Create API instance and pass API key directly
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending welcome email:', error);
@@ -46,9 +42,6 @@ const emailService = {
     // Send team invitation email
     async sendTeamInvitation(inviterName, inviteeEmail, teamName, invitationLink) {
         try {
-            // Create a new API instance for each request
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = `You're invited to join ${teamName} on TimeHaven!`;
@@ -78,10 +71,9 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            // Set the API key in the default headers
-            apiInstance.setApiKey('api-key', apiKey);
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Create API instance and pass API key directly
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending team invitation:', error);
@@ -92,9 +84,6 @@ const emailService = {
     // Send password reset email
     async sendPasswordReset(userEmail, resetLink) {
         try {
-            // Create a new API instance for each request
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = "Reset Your TimeHaven Password";
@@ -109,6 +98,7 @@ const emailService = {
                         <br>
                         <p>If you didn't request this reset, you can safely ignore this email.</p>
                         <p>This link will expire in 1 hour for security reasons.</p>
+                        <br>
                         <p>Best regards,</p>
                         <p>The TimeHaven Team</p>
                     </body>
@@ -123,10 +113,9 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            // Set the API key in the default headers
-            apiInstance.setApiKey('api-key', apiKey);
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Create API instance and pass API key directly
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending password reset:', error);
@@ -137,9 +126,6 @@ const emailService = {
     // Send contact form email
     async sendContactForm(name, email, subject, message) {
         try {
-            // Create a new API instance for each request
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
             sendSmtpEmail.subject = `New Contact Form: ${subject}`;
@@ -190,10 +176,9 @@ const emailService = {
                 throw new Error('BREVO_API_KEY environment variable is not set');
             }
             
-            // Set the API key in the default headers
-            apiInstance.setApiKey('api-key', apiKey);
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Create API instance and pass API key directly
+            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending contact form email:', error);
