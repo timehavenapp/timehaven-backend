@@ -62,6 +62,9 @@ app.get('/test', (req, res) => {
 // Import database functions
 const { createUser, getUser } = require('./utils/database');
 
+// Import email service
+const emailService = require('./utils/emailService');
+
 // Test user creation endpoint
 app.post('/test-user', async (req, res) => {
   try {
@@ -87,6 +90,28 @@ app.get('/test-user/:userId', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// Test email endpoint
+app.post('/test-email', async (req, res) => {
+    try {
+        const { email, name } = req.body;
+        
+        if (!email || !name) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Email and name are required' 
+            });
+        }
+        
+        const result = await emailService.sendWelcomeEmail(email, name);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
 });
 
 // Authentication routes
