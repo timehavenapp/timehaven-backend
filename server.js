@@ -114,6 +114,12 @@ app.post('/test-email', async (req, res) => {
     }
 });
 
+// Simple contact test route
+app.get('/api/contact-test', (req, res) => {
+    console.log(' Debug: Contact test route hit');
+    res.json({ message: 'Contact test route is working!' });
+});
+
 // Contact form endpoint - FIXED: Now accepts formData object
 app.post('/api/contact', async (req, res) => {
     console.log(' Debug: Contact form endpoint hit');
