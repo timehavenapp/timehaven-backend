@@ -114,8 +114,8 @@ app.post('/test-email', async (req, res) => {
     }
 });
 
-// Contact form endpoint
-app.post('/contact', async (req, res) => {
+// Contact form endpoint - FIXED: Now accepts formData object
+app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
         
@@ -136,8 +136,8 @@ app.post('/contact', async (req, res) => {
             });
         }
         
-        // Send contact form email
-        const result = await emailService.sendContactForm(name, email, subject, message);
+        // Send contact form email - FIXED: Pass formData object
+        const result = await emailService.sendContactForm({ name, email, subject, message });
         
         if (result.success) {
             res.json({ 
