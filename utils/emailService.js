@@ -2,7 +2,6 @@ const SibApiV3Sdk = require('@getbrevo/brevo');
 
 // Configure Brevo API
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-apiInstance.setApiKey(SibApiV3Sdk.ApiClient.instance.authentications['api-key'], process.env.BREVO_API_KEY);
 
 // Email service functions
 const emailService = {
@@ -27,7 +26,13 @@ const emailService = {
             sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
             sendSmtpEmail.to = [{ email: userEmail, name: userName }];
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Set API key for this request
+            const apiKey = process.env.BREVO_API_KEY;
+            if (!apiKey) {
+                throw new Error('BREVO_API_KEY environment variable is not set');
+            }
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending welcome email:', error);
@@ -61,7 +66,13 @@ const emailService = {
             sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
             sendSmtpEmail.to = [{ email: inviteeEmail }];
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Set API key for this request
+            const apiKey = process.env.BREVO_API_KEY;
+            if (!apiKey) {
+                throw new Error('BREVO_API_KEY environment variable is not set');
+            }
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending team invitation:', error);
@@ -95,7 +106,13 @@ const emailService = {
             sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
             sendSmtpEmail.to = [{ email: userEmail }];
             
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+            // Set API key for this request
+            const apiKey = process.env.BREVO_API_KEY;
+            if (!apiKey) {
+                throw new Error('BREVO_API_KEY environment variable is not set');
+            }
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending password reset:', error);
