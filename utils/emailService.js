@@ -10,7 +10,7 @@ const emailService = {
         try {
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
-            sendSmtpEmail.subject = "Welcome to TimeHaven! ��";
+            sendSmtpEmail.subject = "Welcome to TimeHaven!";
             sendSmtpEmail.htmlContent = `
                 <html>
                     <body>
@@ -45,7 +45,7 @@ const emailService = {
         try {
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
-            sendSmtpEmail.subject = `You're invited to join ${teamName} on TimeHaven! ��`;
+            sendSmtpEmail.subject = `You're invited to join ${teamName} on TimeHaven!`;
             sendSmtpEmail.htmlContent = `
                 <html>
                     <body>
@@ -85,7 +85,7 @@ const emailService = {
         try {
             const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
             
-            sendSmtpEmail.subject = "Reset Your TimeHaven Password ��";
+            sendSmtpEmail.subject = "Reset Your TimeHaven Password";
             sendSmtpEmail.htmlContent = `
                 <html>
                     <body>
@@ -116,6 +116,67 @@ const emailService = {
             return { success: true, messageId: result.messageId };
         } catch (error) {
             console.error('Error sending password reset:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Send contact form email
+    async sendContactForm(name, email, subject, message) {
+        try {
+            const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+            
+            sendSmtpEmail.subject = `New Contact Form: ${subject}`;
+            sendSmtpEmail.htmlContent = `
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h1 style="color: #005dab; border-bottom: 3px solid #6caee0; padding-bottom: 10px;">
+                                New Contact Form Submission 📧
+                            </h1>
+                            
+                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h2 style="color: #005dab; margin-top: 0;">Contact Details</h2>
+                                <p><strong>Name:</strong> ${name}</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                                <p><strong>Subject:</strong> ${subject}</p>
+                                <p><strong>Message:</strong></p>
+                                <div style="background-color: white; padding: 15px; border-radius: 5px; border-left: 4px solid #005dab;">
+                                    ${message.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                            
+                            <div style="background-color: #e8f4fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 0;"><strong> Submitted:</strong> ${new Date().toLocaleString()}</p>
+                                <p style="margin: 5px 0 0 0;"><strong>🌐 Source:</strong> TimeHaven Contact Form</p>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 30px;">
+                                <a href="mailto:${email}" style="background-color: #005dab; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                                    Reply to ${name}
+                                </a>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                            <p style="text-align: center; color: #666; font-size: 14px;">
+                                This email was sent from the TimeHaven contact form system.
+                            </p>
+                        </div>
+                    </body>
+                </html>
+            `;
+            sendSmtpEmail.sender = { name: "TimeHaven Contact Form", email: process.env.FROM_EMAIL };
+            sendSmtpEmail.to = [{ email: process.env.FROM_EMAIL, name: "TimeHaven Support" }];
+            
+            // Set API key for this request
+            const apiKey = process.env.BREVO_API_KEY;
+            if (!apiKey) {
+                throw new Error('BREVO_API_KEY environment variable is not set');
+            }
+            
+            const result = await apiInstance.sendTransacEmail(sendSmtpEmail, { 'api-key': apiKey });
+            return { success: true, messageId: result.messageId };
+        } catch (error) {
+            console.error('Error sending contact form email:', error);
             return { success: false, error: error.message };
         }
     }

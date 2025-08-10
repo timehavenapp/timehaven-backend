@@ -114,6 +114,53 @@ app.post('/test-email', async (req, res) => {
     }
 });
 
+// Contact form endpoint
+app.post('/contact', async (req, res) => {
+    try {
+        const { name, email, subject, message } = req.body;
+        
+        // Validate required fields
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'All fields are required: name, email, subject, message' 
+            });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Please provide a valid email address' 
+            });
+        }
+        
+        // Send contact form email
+        const result = await emailService.sendContactForm(name, email, subject, message);
+        
+        if (result.success) {
+            res.json({ 
+                success: true, 
+                message: 'Contact form submitted successfully! We\'ll get back to you soon.',
+                messageId: result.messageId
+            });
+        } else {
+            res.status(500).json({ 
+                success: false, 
+                error: 'Failed to send contact form. Please try again later.' 
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error processing contact form:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Internal server error. Please try again later.' 
+        });
+    }
+});
+
 // Authentication routes
 app.use('/auth', require('./routes/auth'));
 app.use('/auth', require('./routes/outlook-auth'));
