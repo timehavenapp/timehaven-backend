@@ -1,174 +1,159 @@
-const SibApiV3Sdk = require('@getbrevo/brevo');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
-// Email service functions
-const emailService = {
-    // Send welcome email
-    async sendWelcomeEmail(userEmail, userName) {
-        try {
-            // Configure the default API key
-            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-            
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-            
-            sendSmtpEmail.subject = "Welcome to TimeHaven!";
-            sendSmtpEmail.htmlContent = `
-                <html>
-                    <body>
-                        <h1>Welcome to TimeHaven, ${userName}! 🎉</h1>
-                        <p>We're excited to have you on board. TimeHaven will help you manage your time across different timezones and coordinate with your team.</p>
-                        <p>If you have any questions, feel free to reach out to our support team.</p>
-                        <br>
-                        <p>Best regards,</p>
-                        <p>The TimeHaven Team</p>
-                    </body>
-                </html>
-            `;
-            sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
-            sendSmtpEmail.to = [{ email: userEmail, name: userName }];
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-            return { success: true, messageId: result.messageId };
-        } catch (error) {
-            console.error('Error sending welcome email:', error);
-            return { success: false, error: error.message };
-        }
-    },
-
-    // Send team invitation email
-    async sendTeamInvitation(inviterName, inviteeEmail, teamName, invitationLink) {
-        try {
-            // Configure the default API key
-            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-            
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-            
-            sendSmtpEmail.subject = `You're invited to join ${teamName} on TimeHaven!`;
-            sendSmtpEmail.htmlContent = `
-                <html>
-                    <body>
-                        <h1>Team Invitation from ${inviterName} 🚀</h1>
-                        <p>You've been invited to join <strong>${teamName}</strong> on TimeHaven!</p>
-                        <p>TimeHaven helps teams coordinate across different timezones and manage availability efficiently.</p>
-                        <br>
-                        <p><strong>Click the link below to accept the invitation:</strong></p>
-                        <p><a href="${invitationLink}" style="background-color: #005dab; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Accept Invitation</a></p>
-                        <br>
-                        <p>If you have any questions, feel free to reach out to ${inviterName} or our support team.</p>
-                        <br>
-                        <p>Best regards,</p>
-                        <p>The TimeHaven Team</p>
-                    </body>
-                </html>
-            `;
-            sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
-            sendSmtpEmail.to = [{ email: inviteeEmail }];
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-            return { success: true, messageId: result.messageId };
-        } catch (error) {
-            console.error('Error sending team invitation:', error);
-            return { success: false, error: error.message };
-        }
-    },
-
-    // Send password reset email
-    async sendPasswordReset(userEmail, resetLink) {
-        try {
-            // Configure the default API key
-            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-            
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-            
-            sendSmtpEmail.subject = "Reset Your TimeHaven Password";
-            sendSmtpEmail.htmlContent = `
-                <html>
-                    <body>
-                        <h1>Password Reset Request 🔐</h1>
-                        <p>We received a request to reset your TimeHaven password.</p>
-                        <p>Click the button below to create a new password:</p>
-                        <br>
-                        <p><a href="${resetLink}" style="background-color: #005dab; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reset Password</a></p>
-                        <br>
-                        <p>If you didn't request this reset, you can safely ignore this email.</p>
-                        <p>This link will expire in 1 hour for security reasons.</p>
-                        <br>
-                        <p>Best regards,</p>
-                        <p>The TimeHaven Team</p>
-                    </body>
-                </html>
-            `;
-            sendSmtpEmail.sender = { name: "TimeHaven", email: process.env.FROM_EMAIL };
-            sendSmtpEmail.to = [{ email: userEmail }];
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-            return { success: true, messageId: result.messageId };
-        } catch (error) {
-            console.error('Error sending password reset:', error);
-            return { success: false, error: error.message };
-        }
-    },
-
-    // Send contact form email
-    async sendContactForm(name, email, subject, message) {
-        try {
-            // Configure the default API key
-            SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-            
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-            
-            sendSmtpEmail.subject = `New Contact Form: ${subject}`;
-            sendSmtpEmail.htmlContent = `
-                <html>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                            <h1 style="color: #005dab; border-bottom: 3px solid #6caee0; padding-bottom: 10px;">
-                                New Contact Form Submission 📧
-                            </h1>
-                            
-                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                                <h2 style="color: #005dab; margin-top: 0;">Contact Details</h2>
-                                <p><strong>Name:</strong> ${name}</p>
-                                <p><strong>Email:</strong> ${email}</p>
-                                <p><strong>Subject:</strong> ${subject}</p>
-                                <p><strong>Message:</strong></p>
-                                <div style="background-color: white; padding: 15px; border-radius: 5px; border-left: 4px solid #005dab;">
-                                    ${message.replace(/\n/g, '<br>')}
-                                </div>
-                            </div>
-                            
-                            <div style="background-color: #e8f4fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                <p style="margin: 0;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-                                <p style="margin: 5px 0 0 0;"><strong>🌐 Source:</strong> TimeHaven Contact Form</p>
-                            </div>
-                            
-                            <div style="text-align: center; margin-top: 30px;">
-                                <a href="mailto:${email}" style="background-color: #005dab; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                                    Reply to ${name}
-                                </a>
-                            </div>
-                            
-                            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-                            <p style="text-align: center; color: #666; font-size: 14px;">
-                                This email was sent from the TimeHaven contact form system.
-                            </p>
-                        </div>
-                    </body>
-                </html>
-            `;
-            sendSmtpEmail.sender = { name: "TimeHaven Contact Form", email: process.env.FROM_EMAIL };
-            sendSmtpEmail.to = [{ email: process.env.FROM_EMAIL, name: "TimeHaven Support" }];
-            
-            const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-            return { success: true, messageId: result.messageId };
-        } catch (error) {
-            console.error('Error sending contact form email:', error);
-            return { success: false, error: error.message };
-        }
-    }
+// Email service configuration using environment variables
+const emailConfig = {
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.BREVO_EMAIL,
+    pass: process.env.BREVO_API_KEY
+  }
 };
 
-module.exports = emailService;
+// Create reusable transporter object using SMTP transport
+let transporter;
+
+try {
+  transporter = nodemailer.createTransporter(emailConfig);
+  console.log('✅ Email transporter created successfully');
+  console.log(`📧 Using email: ${process.env.BREVO_EMAIL}`);
+} catch (error) {
+  console.error('❌ Error creating email transporter:', error);
+  transporter = null;
+}
+
+// Test email connection
+const testConnection = async () => {
+  if (!transporter) {
+    console.error('❌ No transporter available');
+    return false;
+  }
+  
+  try {
+    await transporter.verify();
+    console.log('✅ Email server connection verified');
+    return true;
+  } catch (error) {
+    console.error('❌ Email connection test failed:', error);
+    return false;
+  }
+};
+
+// Send contact form email
+const sendContactForm = async (formData) => {
+  if (!transporter) {
+    throw new Error('Email transporter not initialized');
+  }
+
+  const { name, email, subject, message } = formData;
+
+  const mailOptions = {
+    from: process.env.BREVO_EMAIL,
+    to: process.env.SUPPORT_EMAIL,
+    subject: `Contact Form: ${subject}`,
+    html: `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Message:</strong></p>
+      <p>${message}</p>
+      <hr>
+      <p><em>This email was sent from your TimeHaven contact form.</em></p>
+    `
+  };
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log('✅ Contact form email sent successfully:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Error sending contact form email:', error);
+    throw error;
+  }
+};
+
+// Send welcome email
+const sendWelcomeEmail = async (userEmail, userName) => {
+  if (!transporter) {
+    throw new Error('Email transporter not initialized');
+  }
+
+  const mailOptions = {
+    from: process.env.BREVO_EMAIL,
+    to: userEmail,
+    subject: 'Welcome to TimeHaven! 🚢',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #005dab;">Welcome to TimeHaven! ��</h1>
+        <p>Hi ${userName},</p>
+        <p>Welcome aboard! We're excited to have you join the TimeHaven community.</p>
+        <p>TimeHaven helps you navigate timezone challenges and coordinate with teams across the globe.</p>
+        <h2 style="color: #6caee0;">What's Next?</h2>
+        <ul>
+          <li>Connect your calendar</li>
+          <li>Create or join a team</li>
+          <li>Set your availability preferences</li>
+          <li>Start scheduling meetings</li>
+        </ul>
+        <p>If you have any questions, feel free to reach out to our support team.</p>
+        <p>Best regards,<br>The TimeHaven Team</p>
+      </div>
+    `
+  };
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log('✅ Welcome email sent successfully:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Error sending welcome email:', error);
+    throw error;
+  }
+};
+
+// Send team invitation email
+const sendTeamInvitation = async (inviteeEmail, inviterName, teamName, invitationLink) => {
+  if (!transporter) {
+    throw new Error('Email transporter not initialized');
+  }
+
+  const mailOptions = {
+    from: process.env.BREVO_EMAIL,
+    to: inviteeEmail,
+    subject: `You're invited to join ${teamName} on TimeHaven! 🚢`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #005dab;">Team Invitation ��</h1>
+        <p>Hi there!</p>
+        <p><strong>${inviterName}</strong> has invited you to join the team <strong>${teamName}</strong> on TimeHaven.</p>
+        <p>TimeHaven helps teams coordinate across timezones and schedule meetings efficiently.</p>
+        <div style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #6caee0;">Join the Team</h3>
+          <p>Click the button below to accept the invitation:</p>
+          <a href="${invitationLink}" style="background-color: #005dab; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Accept Invitation</a>
+        </div>
+        <p>If you have any questions, feel free to reach out to our support team.</p>
+        <p>Best regards,<br>The TimeHaven Team</p>
+      </div>
+    `
+  };
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log('✅ Team invitation email sent successfully:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Error sending team invitation email:', error);
+    throw error;
+  }
+};
+
+module.exports = {
+  testConnection,
+  sendContactForm,
+  sendWelcomeEmail,
+  sendTeamInvitation
+};
