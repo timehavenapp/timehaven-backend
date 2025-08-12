@@ -5,19 +5,27 @@
    passport.use('microsoft', new MicrosoftStrategy({
        clientID: process.env.OUTLOOK_CLIENT_ID,
        clientSecret: process.env.OUTLOOK_CLIENT_SECRET,
-       callbackURL: "http://localhost:3000/auth/outlook/callback",
-       scope: ['user.read', 'calendars.read', 'calendars.readwrite']
+       callbackURL: process.env.NODE_ENV === 'production'
+         ? "https://timehaven-backend.onrender.com/auth/outlook/callback"
+         : "http://localhost:3000/auth/outlook/callback",
+       scope: ['user.read', 'calendars.read', 'calendars.readwrite', 'offline_access']
      },
      async (accessToken, refreshToken, profile, done) => {
        try {
          console.log('Microsoft OAuth callback received:', profile);
+         
+         // Store access token for calendar operations
+         profile.accessToken = accessToken;
+         profile.refreshToken = refreshToken;
          
          // Safely handle the profile data
          const userProfile = {
            id: profile.id,
            displayName: profile.displayName || profile.name?.givenName + ' ' + profile.name?.familyName || 'Unknown User',
            emails: profile.emails && profile.emails.length > 0 ? [{ value: profile.emails[0].value }] : [{ value: 'no-email@example.com' }],
-           photos: profile.photos && profile.photos.length > 0 ? [{ value: profile.photos[0].value }] : []
+           photos: profile.photos && profile.photos.length > 0 ? [{ value: profile.photos[0].value }] : [],
+           accessToken: accessToken,
+           refreshToken: refreshToken
          };
          
          console.log('Processed user profile:', userProfile);

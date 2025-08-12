@@ -8,7 +8,7 @@ const router = express.Router();
 // Microsoft OAuth route
 router.get('/outlook',
   passport.authenticate('microsoft', { 
-    scope: ['user.read', 'calendars.read', 'calendars.readwrite']
+    scope: ['user.read', 'calendars.read', 'calendars.readwrite', 'offline_access']
   })
 );
 
@@ -24,13 +24,18 @@ router.get('/outlook/callback',
         profileImage: req.user.photos[0]?.value,
         timezone: 'America/New_York',
         isActive: true,
-        calendarProvider: 'outlook'
+        calendarProvider: 'outlook',
+        outlookAccessToken: req.user.accessToken,
+        outlookRefreshToken: req.user.refreshToken
       };
 
       // Check if user exists, if not create them
       const existingUser = await getUser(userData.id);
       if (!existingUser.success) {
         await createUser(userData);
+      } else {
+        // Update existing user with new tokens
+        // You might want to add an updateUser function to your database utils
       }
 
       // Create JWT token
@@ -41,7 +46,7 @@ router.get('/outlook/callback',
       );
 
       // Redirect to app with token
-      res.redirect(`yourapp://auth?token=${token}&provider=outlook`);
+      res.redirect(`timehaven://auth?token=${token}&provider=outlook`);
     } catch (error) {
       console.error('Microsoft auth error:', error);
       res.redirect('/login?error=auth_failed');

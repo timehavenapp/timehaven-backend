@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Google OAuth route
 router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'] })
 );
 
 // Google OAuth callback
@@ -21,13 +21,19 @@ router.get('/google/callback',
         name: req.user.displayName,
         profileImage: req.user.photos[0]?.value,
         timezone: 'America/New_York', // Default timezone
-        isActive: true
+        isActive: true,
+        calendarProvider: 'google',
+        googleAccessToken: req.user.accessToken,
+        googleRefreshToken: req.user.refreshToken
       };
 
       // Check if user exists, if not create them
       const existingUser = await getUser(userData.id);
       if (!existingUser.success) {
         await createUser(userData);
+      } else {
+        // Update existing user with new tokens
+        // You might want to add an updateUser function to your database utils
       }
 
       // Create JWT token
@@ -38,7 +44,7 @@ router.get('/google/callback',
       );
 
       // Redirect to app with token
-      res.redirect(`yourapp://auth?token=${token}`);
+      res.redirect(`timehaven://auth?token=${token}&provider=google`);
     } catch (error) {
       console.error('Auth error:', error);
       res.redirect('/login?error=auth_failed');

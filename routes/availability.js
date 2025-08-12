@@ -85,4 +85,97 @@ router.put('/:teamId', async (req, res) => {
   }
 });
 
+// Get user's calendar events for availability calculation
+router.get('/calendar/:teamId', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { date } = req.query; // Format: YYYY-MM-DD
+    const userId = req.user.userId;
+
+    // Get user's calendar provider and tokens
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userData = userDoc.data();
+    const calendarProvider = userData.calendarProvider;
+
+    if (!calendarProvider) {
+      return res.json({ success: true, events: [] });
+    }
+
+    let events = [];
+    
+    if (calendarProvider === 'google' && userData.googleAccessToken) {
+      // Fetch Google Calendar events
+      events = await fetchGoogleCalendarEvents(userData.googleAccessToken, date);
+    } else if (calendarProvider === 'outlook' && userData.outlookAccessToken) {
+      // Fetch Outlook Calendar events
+      events = await fetchOutlookCalendarEvents(userData.outlookAccessToken, date);
+    }
+
+    res.json({ success: true, events });
+  } catch (error) {
+    console.error('Error fetching calendar events:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Helper function to fetch Google Calendar events
+async function fetchGoogleCalendarEvents(accessToken, date) {
+  try {
+    const startDate = new Date(date);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 1);
+
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startDate.toISOString()}&timeMax=${endDate.toISOString()}&singleEvents=true&orderBy=startTime`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.items || [];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching Google Calendar events:', error);
+    return [];
+  }
+}
+
+// Helper function to fetch Outlook Calendar events
+async function fetchOutlookCalendarEvents(accessToken, date) {
+  try {
+    const startDate = new Date(date);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 1);
+
+    const url = `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${startDate.toISOString()}&endDateTime=${endDate.toISOString()}`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.value || [];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching Outlook Calendar events:', error);
+    return [];
+  }
+}
+
 module.exports = router;
